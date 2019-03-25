@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier, export_graphviz, DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from matplotlib.pyplot import *
 
 pd.set_option('display.max_columns', None)
@@ -138,6 +138,40 @@ def lin_regression_ord_least_squares():
 
     #get some error rates numbers
 
+def ridge_regression(alpha):
+    """
+
+    :param split:
+    :return:
+    """
+
+    x_train, x_test, y_train, y_test = split_data()
+    reg = Ridge(alpha).fit(x_train, y_train)
+    print("Ridge Reg score: ", reg.score(x_train, y_train))
+    print("Ridge Reg coefficients: ", reg.coef_)
+
+    predictions = reg.predict(x_test)
+    plot_assignments(predictions, y_test)
+
+    #get some error rates numbers
+
+def lasso_regression(alpha):
+    """
+
+    :param split:
+    :return:
+    """
+
+    x_train, x_test, y_train, y_test = split_data()
+    reg = Lasso(alpha).fit(x_train, y_train)
+    print("Lasso Reg score: ", reg.score(x_train, y_train))
+    print("Lasso Reg coefficients: ", reg.coef_)
+
+    predictions = reg.predict(x_test)
+    plot_assignments(predictions, y_test)
+
+    #get some error rates numbers
+
 def plot_assignments(predicted_purchase, actual_purchase):
     plot(predicted_purchase, actual_purchase, 'b.')
 
@@ -170,6 +204,10 @@ if __name__ == '__main__':
                              '~2500 would be okay')
     parser.add_argument("--los", action="store_true",
                         help='Fits a linear model using Least Ordinary Squares, which uses coefficients to minimize the residual sum of squares between the observed responses in the dataset, and the responses predicted by the linear approximation')
+    parser.add_argument("--ridge", type=float,
+                        help='Fits a linear model using ridge regreesion, which imposes a penalty on the size of coefficients and takes in one param, alpha. A good example value is .1')
+    parser.add_argument("--lasso", type=float,
+                        help='The Lasso is a linear model that estimates sparse coefficients and takes in one param, alpha. A good example value is .1')
 
     args = parser.parse_args()
 
@@ -180,3 +218,7 @@ if __name__ == '__main__':
         decision_tree(args.dt)
     if args.los:
         lin_regression_ord_least_squares()
+    if args.ridge:
+        ridge_regression(args.ridge)
+    if args.lasso:
+        lasso_regression(args.lasso)

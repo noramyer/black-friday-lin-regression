@@ -15,20 +15,22 @@ $ python -mpip install -U matplotlib
 ```
 
 #### Running model selections
-To fit the data to different modes
+To fit the data to a specific model, run:
 ```
 $ python src/model.py --dt 2500
 ```
-or try
+or try running multiple models at once:
 
 ```
-$ python src/model.py --los --dt 2500
+$ python src/model.py --los --ridge .1 --dt 2500
 ```
 
 Param selection options:
 ```
---dt 2500   #decision tree, takes 1 arg which is samples/split
---los   #linear model with least ordinary squares, no args
+--dt 2500     #decision tree, takes 1 arg which is samples/split
+--los         #linear model with least ordinary squares, no args
+--ridge .1    #ridge regression, takes 1 arg which is alpha
+--lasso .1    #lasso linear model, takes 1 arg which is alpha
 ```
 
 ## About the data
