@@ -3,11 +3,13 @@ from __future__ import print_function
 import os
 import subprocess
 import argparse
-
 import pandas as pd
+
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier, export_graphviz, DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from matplotlib.pyplot import *
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
@@ -119,6 +121,45 @@ def decision_tree(split):
     dt.fit(X_train, y_train)
     visualize_tree(dt, features, split)
 
+def lin_regression_ord_least_squares():
+    """
+
+    :param split:
+    :return:
+    """
+
+    x_train, x_test, y_train, y_test = split_data()
+    reg = LinearRegression().fit(x_train, y_train)
+    print("Reg score: ", reg.score(x_train, y_train))
+    print("Reg coefficients: ", reg.coef_)
+
+    predictions = reg.predict(x_test)
+    plot_assignments(predictions, y_test)
+
+    #get some error rates numbers
+
+def plot_assignments(predicted_purchase, actual_purchase):
+    plot(predicted_purchase, actual_purchase, 'b.')
+
+    legend()
+    ylabel('Actual Purchase')
+    xlabel('Predicted Purchase')
+    show(block = True)
+
+def split_data():
+    """
+
+    :param split:
+    :return:
+    X_train, X_test, y_train, y_test
+    """
+
+    # Get training and test sets and labels
+    features=list(df.columns[1:-1])
+    X=df[features]
+    y=df["Purchase"]
+    x_train, x_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.33)
+    return x_train, x_test, y_train, y_test
 
 if __name__ == '__main__':
 
@@ -127,18 +168,15 @@ if __name__ == '__main__':
     parser.add_argument('--dt', type=int,
                         help='Run the decision tree model with DT minimum samples per splits and generate graph.'
                              '~2500 would be okay')
+    parser.add_argument("--los", action="store_true",
+                        help='Fits a linear model using Least Ordinary Squares, which uses coefficients to minimize the residual sum of squares between the observed responses in the dataset, and the responses predicted by the linear approximation')
 
     args = parser.parse_args()
 
     raw_df=get_data()
     df=preprocess(raw_df)
 
-
     if args.dt is not None:
         decision_tree(args.dt)
-    else:
-        print("No other model implemented yet")
-
-
-
-
+    if args.los:
+        lin_regression_ord_least_squares()
