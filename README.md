@@ -33,6 +33,7 @@ Param selection options:
 --lasso .1    #lasso linear model, takes 1 arg which is alpha
 --forest      #rnd forest regressor, no args
 --all         #run all models with basic args
+--ablation    #run ablation test specified models
 ```
 #### Running exploratory script
 The file exploratory.py takes a look at the raw data before it is processed. It looks at the types of features, uniqueness of features, and purchase averages based on categories. The purpose is to get a baseline purchase estimation and give us a better understading of what the data looks like to help us in the pre-processing stage.
