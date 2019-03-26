@@ -43,7 +43,18 @@ if __name__ == '__main__':
 
     print("Mode purchase amount in cents: " + str(raw_df["Purchase"].mode()))
     print("Average purchase amount in cents: " + str(raw_df["Purchase"].mean()))
+    print("Average purchase amount by gender: " + str(raw_df.groupby('Gender')['Purchase'].mean()))
     print("\n")
 
+    print("Average purchase amount by age: " + str(raw_df.groupby('Age')['Purchase'].mean()))
+    print("\n")
+
+    print("Average purchase amount by occupation: " + str(raw_df.groupby('Occupation')['Purchase'].mean()))
+    print("\n")
+
+    print("Average purchase amount by city category: " + str(raw_df.groupby('City_Category')['Purchase'].mean()))
+    print("\n")
+
+    print("How many unique items for each category?")
     for col in raw_df.columns:
         print('{} unique element: {}'.format(col,raw_df[col].nunique()))
