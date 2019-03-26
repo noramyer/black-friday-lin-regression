@@ -5,10 +5,11 @@ import subprocess
 import argparse
 import pandas as pd
 
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier, export_graphviz, DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.ensemble import RandomForestRegressor
 from matplotlib.pyplot import *
 
 pd.set_option('display.max_columns', None)
@@ -20,7 +21,7 @@ def get_data():
     # print(dir_path)
     file_path=dir_path+"/../BlackFriday.csv"
     if os.path.exists(file_path):
-        print("Reading csv file")
+        print("Reading csv file...")
         df = pd.read_csv(file_path, index_col=0)
     else:
         exit("BlackFriday.csv not found, exiting...")
@@ -62,11 +63,9 @@ def preprocess(raw_df):
     df=onehot_encode(raw_df, "Gender")
     df=onehot_encode(df, "City_Category")
     df=onehot_encode(df,"Occupation")
+    df=onehot_encode(df,"Age")
+    df=onehot_encode(df,"Stay_In_Current_City_Years")
 
-    # maintains the order of age groups while labeling
-    df=label_encode(df,"Age")
-    # should try one-hot for this one as well
-    df=label_encode(df,"Stay_In_Current_City_Years")
     df['Product_Category_1'].fillna(0, inplace=True)
     df['Product_Category_2'].fillna(0, inplace=True)
     df['Product_Category_3'].fillna(0, inplace=True)
@@ -141,8 +140,9 @@ def lin_regression_ord_least_squares():
 
     x_train, x_test, y_train, y_test = split_data()
     reg = LinearRegression().fit(x_train, y_train)
-    print("Reg score: ", reg.score(x_test, y_test))
-    print("Reg coefficients: ", reg.coef_)
+    print("Least ordinary squares score training: ", reg.score(x_train, y_train))
+    print("Least ordinary squares score test: ", reg.score(x_test, y_test))
+    print("Least ordinary squares coefficients: ", reg.coef_)
 
     predictions = reg.predict(x_test)
     plot_assignments(predictions, y_test)
@@ -158,8 +158,9 @@ def ridge_regression(alpha):
 
     x_train, x_test, y_train, y_test = split_data()
     reg = Ridge(alpha).fit(x_train, y_train)
-    print("Ridge Reg score: ", reg.score(x_train, y_train))
-    print("Ridge Reg coefficients: ", reg.coef_)
+    print("Ridge score training: ", reg.score(x_train, y_train))
+    print("Ridge score test: ", reg.score(x_test, y_test))
+    print("Ridge coefficients: ", reg.coef_)
 
     predictions = reg.predict(x_test)
     plot_assignments(predictions, y_test)
@@ -175,21 +176,49 @@ def lasso_regression(alpha):
 
     x_train, x_test, y_train, y_test = split_data()
     reg = Lasso(alpha).fit(x_train, y_train)
-    print("Lasso Reg score: ", reg.score(x_train, y_train))
-    print("Lasso Reg coefficients: ", reg.coef_)
+    print("Lasso score training: ", reg.score(x_train, y_train))
+    print("Lasso score test: ", reg.score(x_test, y_test))
+    print("Lasso coefficients: ", reg.coef_)
 
     predictions = reg.predict(x_test)
     plot_assignments(predictions, y_test)
-
-    #get some error rates numbers
 
 def plot_assignments(predicted_purchase, actual_purchase):
     plot(predicted_purchase, actual_purchase, 'b.')
 
     legend()
-    ylabel('Actual Purchase')
-    xlabel('Predicted Purchase')
+    ylabel('Actual Purchase in Cents')
+    xlabel('Predicted Purchase in Cents')
     show(block = True)
+
+def rnd_forest_ensemble():
+    x_train, x_test, y_train, y_test = split_data_fractioned()
+
+    forest = RandomForestRegressor(n_estimators=100, max_depth=100).fit(x_train, y_train)
+    print("Rnd forest score training: ", forest.score(x_train, y_train))
+    print("Rnd forest score test: ", forest.score(x_test, y_test))
+
+    predictions = forest.predict(x_test)
+    plot_assignments(predictions, y_test)
+
+def split_data_fractioned():
+    """
+
+    :param split:
+    :return:
+    X_train, X_test, y_train, y_test
+    """
+    #get fractioned data set for sampling
+    df_frac = df.sample(frac=0.02, replace=True)
+
+    # Get training and test sets and labels
+    features=list(df_frac.columns[0:-1])
+    x = df_frac[features]
+    x.insert(0,'Bias',1)
+    y=df_frac["Purchase"]
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=1, test_size=0.33)
+    return x_train, x_test, y_train, y_test
 
 def split_data():
     """
@@ -201,15 +230,12 @@ def split_data():
 
     # Get training and test sets and labels
     features=list(df.columns[0:-1])
-    #print(list(df.columns[1:-1]))
 
-    X=df[features]
-    X.insert(0,'Bias',1)
-    #print(X.columns)
-    #X.drop(0)
-    #print(X)
+    x=df[features]
+    x.insert(0,'Bias',1)
     y=df["Purchase"]
-    x_train, x_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.33)
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=1, test_size=0.33)
     return x_train, x_test, y_train, y_test
 
 if __name__ == '__main__':
@@ -225,6 +251,8 @@ if __name__ == '__main__':
                         help='Fits a linear model using ridge regreesion, which imposes a penalty on the size of coefficients and takes in one param, alpha. A good example value is .1')
     parser.add_argument("--lasso", type=float,
                         help='The Lasso is a linear model that estimates sparse coefficients and takes in one param, alpha. A good example value is .1')
+    parser.add_argument("--forest", action="store_true",
+                        help='A random forest regressor which fits a number of classifying decision trees on various sub-samples of the dataset and uses averaging to improve the predictive accuracy and control over-fitting')
 
     args = parser.parse_args()
 
@@ -239,3 +267,5 @@ if __name__ == '__main__':
         ridge_regression(args.ridge)
     if args.lasso:
         lasso_regression(args.lasso)
+    if args.forest:
+        rnd_forest_ensemble()

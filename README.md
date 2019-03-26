@@ -31,6 +31,7 @@ Param selection options:
 --los         #linear model with least ordinary squares, no args
 --ridge .1    #ridge regression, takes 1 arg which is alpha
 --lasso .1    #lasso linear model, takes 1 arg which is alpha
+--forest      #rnd forest regressor, no args
 ```
 
 ## About the data

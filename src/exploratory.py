@@ -30,6 +30,8 @@ if __name__ == '__main__':
     print("Number of columns:" +str(raw_df.shape[1]))
     print("Columns: "+ str(list(raw_df.columns.values)))
     print("\n")
+    print("Columns containing na values?: \n" + str(raw_df.isna().any()))
+    print("\n")
 
     print("Average age: " + str(raw_df["Age"].mode()))
     female_count = len(raw_df[raw_df["Gender"]=='F'])
@@ -39,4 +41,9 @@ if __name__ == '__main__':
     print("Percent female: " + str(float(female_count)/num))
     print("Percent male: " + str(float(male_count)/num))
 
-    print("Average purchase amount in cents: " + str(raw_df["Purchase"].mode()))
+    print("Mode purchase amount in cents: " + str(raw_df["Purchase"].mode()))
+    print("Average purchase amount in cents: " + str(raw_df["Purchase"].mean()))
+    print("\n")
+
+    for col in raw_df.columns:
+        print('{} unique element: {}'.format(col,raw_df[col].nunique()))
