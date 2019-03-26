@@ -253,19 +253,28 @@ if __name__ == '__main__':
                         help='The Lasso is a linear model that estimates sparse coefficients and takes in one param, alpha. A good example value is .1')
     parser.add_argument("--forest", action="store_true",
                         help='A random forest regressor which fits a number of classifying decision trees on various sub-samples of the dataset and uses averaging to improve the predictive accuracy and control over-fitting')
+    parser.add_argument("--all", action="store_true",
+                        help='Run all models')
 
     args = parser.parse_args()
 
     raw_df=get_data()
     df=preprocess(raw_df)
 
-    if args.dt is not None:
-        decision_tree(args.dt)
-    if args.los:
+    if args.all:
+        decision_tree(2500)
         lin_regression_ord_least_squares()
-    if args.ridge:
-        ridge_regression(args.ridge)
-    if args.lasso:
-        lasso_regression(args.lasso)
-    if args.forest:
+        idge_regression(.1)
+        lasso_regression(.1)
         rnd_forest_ensemble()
+    else:
+        if args.dt is not None:
+            decision_tree(args.dt)
+        if args.los:
+            lin_regression_ord_least_squares()
+        if args.ridge:
+            ridge_regression(args.ridge)
+        if args.lasso:
+            lasso_regression(args.lasso)
+        if args.forest:
+            rnd_forest_ensemble()
