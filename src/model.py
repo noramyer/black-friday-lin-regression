@@ -52,34 +52,32 @@ def label_encode(df, target_column):
     return df_mod
 
 
-def preprocess(raw_df):
+def preprocess(raw_df, ablation=-1):
     """
         Ordinal data encoded using ordered-label encoding and categorical using one-hot.
         Missing data is replaced with median for now, can look at estimators if need be.
     :param raw_df:
     :return:
     """
-
-    df=onehot_encode(raw_df, "Gender")
-    df=onehot_encode(df, "City_Category")
-    df=onehot_encode(df,"Occupation")
-    df=onehot_encode(df,"Age")
-    df=onehot_encode(df,"Stay_In_Current_City_Years")
-
+    df=raw_df.copy()
     df['Product_Category_1'].fillna(0, inplace=True)
     df['Product_Category_2'].fillna(0, inplace=True)
     df['Product_Category_3'].fillna(0, inplace=True)
-    df['Product_Category_1']=df['Product_Category_1'].map(str)+df['Product_Category_2'].map(str)+df['Product_Category_3'].map(str)
-    df=onehot_encode(df,"Product_Category_1")
-#    df['Product_Category_2'].fillna(df['Product_Category_2'].median(), inplace=True)
-#    df['Product_Category_3'].fillna(df['Product_Category_3'].median(), inplace=True)
-#    df['Product_Category']=
-
     del df['Product_ID']
-    #del df['User_ID']
-    #del df['Product_Category_1']
+    df['Product_Category_1']=df['Product_Category_1'].map(str)+df['Product_Category_2'].map(str)+df['Product_Category_3'].map(str)
     del df['Product_Category_2']
     del df['Product_Category_3']
+
+    if(ablation>-1 and ablation<7):
+        print("Ablation dropping "+str(df.columns[i]))
+        del df[df.columns[i]]
+
+    to_onehot=["Gender","City_Category","Occupation","Age","Stay_In_Current_City_Years","Product_Category_1"]
+    for feature in to_onehot:
+        if feature in list(df.columns):
+            df=onehot_encode(df,feature)
+
+
 #    print(df.columns)
     return df
 
@@ -255,26 +253,35 @@ if __name__ == '__main__':
                         help='A random forest regressor which fits a number of classifying decision trees on various sub-samples of the dataset and uses averaging to improve the predictive accuracy and control over-fitting')
     parser.add_argument("--all", action="store_true",
                         help='Run all models')
+    parser.add_argument("--ablation", action="store_true",
+                        help='Enables ablation testing')
 
     args = parser.parse_args()
 
     raw_df=get_data()
-    df=preprocess(raw_df)
+    abl_min=-1
+    abl_max=0
+    if(args.ablation):
+        abl_min=0
+        abl_max=7
+    for i in range(abl_min,abl_max):
 
-    if args.all:
-        decision_tree(2500)
-        lin_regression_ord_least_squares()
-        idge_regression(.1)
-        lasso_regression(.1)
-        rnd_forest_ensemble()
-    else:
-        if args.dt is not None:
-            decision_tree(args.dt)
-        if args.los:
+        df=preprocess(raw_df,i)
+
+        if args.all:
+            decision_tree(2500)
             lin_regression_ord_least_squares()
-        if args.ridge:
-            ridge_regression(args.ridge)
-        if args.lasso:
-            lasso_regression(args.lasso)
-        if args.forest:
+            idge_regression(.1)
+            lasso_regression(.1)
             rnd_forest_ensemble()
+        else:
+            if args.dt is not None:
+                decision_tree(args.dt)
+            if args.los:
+                lin_regression_ord_least_squares()
+            if args.ridge:
+                ridge_regression(args.ridge)
+            if args.lasso:
+                lasso_regression(args.lasso)
+            if args.forest:
+                rnd_forest_ensemble()
