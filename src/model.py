@@ -61,18 +61,27 @@ def preprocess(raw_df):
 
     df=onehot_encode(raw_df, "Gender")
     df=onehot_encode(df, "City_Category")
+    df=onehot_encode(df,"Occupation")
 
     # maintains the order of age groups while labeling
     df=label_encode(df,"Age")
     # should try one-hot for this one as well
     df=label_encode(df,"Stay_In_Current_City_Years")
+    df['Product_Category_1'].fillna(0, inplace=True)
+    df['Product_Category_2'].fillna(0, inplace=True)
+    df['Product_Category_3'].fillna(0, inplace=True)
+    df['Product_Category_1']=df['Product_Category_1'].map(str)+df['Product_Category_2'].map(str)+df['Product_Category_3'].map(str)
+    df=onehot_encode(df,"Product_Category_1")
+#    df['Product_Category_2'].fillna(df['Product_Category_2'].median(), inplace=True)
+#    df['Product_Category_3'].fillna(df['Product_Category_3'].median(), inplace=True)
+#    df['Product_Category']=
 
-    df['Product_Category_1'].fillna(df['Product_Category_1'].median(), inplace=True)
-    df['Product_Category_2'].fillna(df['Product_Category_2'].median(), inplace=True)
-    df['Product_Category_3'].fillna(df['Product_Category_3'].median(), inplace=True)
-
-
-
+    del df['Product_ID']
+    #del df['User_ID']
+    #del df['Product_Category_1']
+    del df['Product_Category_2']
+    del df['Product_Category_3']
+#    print(df.columns)
     return df
 
 def visualize_tree(tree, feature_names, step):
@@ -110,7 +119,9 @@ def decision_tree(split):
     :return:
     """
     # Contains all columns except UserID, ProductID and Purchase
-    features=list(df.columns[1:-1])
+    features=list(df.columns[0:-1])
+    #print("-------")
+    #print(features)
     X=df[features]
     y=df["Purchase"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.33)
@@ -130,7 +141,7 @@ def lin_regression_ord_least_squares():
 
     x_train, x_test, y_train, y_test = split_data()
     reg = LinearRegression().fit(x_train, y_train)
-    print("Reg score: ", reg.score(x_train, y_train))
+    print("Reg score: ", reg.score(x_test, y_test))
     print("Reg coefficients: ", reg.coef_)
 
     predictions = reg.predict(x_test)
@@ -189,8 +200,14 @@ def split_data():
     """
 
     # Get training and test sets and labels
-    features=list(df.columns[1:-1])
+    features=list(df.columns[0:-1])
+    #print(list(df.columns[1:-1]))
+
     X=df[features]
+    X.insert(0,'Bias',1)
+    #print(X.columns)
+    #X.drop(0)
+    #print(X)
     y=df["Purchase"]
     x_train, x_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.33)
     return x_train, x_test, y_train, y_test
