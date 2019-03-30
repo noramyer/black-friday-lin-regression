@@ -271,11 +271,11 @@ if __name__ == '__main__':
         if args.all:
             decision_tree(2500)
             lin_regression_ord_least_squares()
-            idge_regression(.1)
+            ridge_regression(.1)
             lasso_regression(.1)
             rnd_forest_ensemble()
         else:
-            if args.dt is not None:
+            if args.dt:
                 decision_tree(args.dt)
             if args.los:
                 lin_regression_ord_least_squares()
