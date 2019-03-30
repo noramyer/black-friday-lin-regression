@@ -9,6 +9,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from matplotlib.pyplot import *
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
+from matplotlib.pyplot import *
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
@@ -72,3 +73,10 @@ if __name__ == '__main__':
 
     score = r2_score(np.asarray(y_test.as_matrix()), np.asarray(avg_array))
     print("R2 Score of baseline is: " + str(score))
+
+    plot(np.asarray(avg_array), np.asarray(y_test.as_matrix()), 'b.')
+
+    legend()
+    ylabel('Actual Purchase in Cents')
+    xlabel('Predicted Purchase in Cents')
+    show(block = True)
