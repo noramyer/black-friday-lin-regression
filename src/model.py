@@ -127,6 +127,8 @@ def decision_tree(split):
     # dt = DecisionTreeClassifier(min_samples_split=split, random_state=99)
     dt = DecisionTreeRegressor(min_samples_split=split, random_state=99)
     dt.fit(X_train, y_train)
+    print("Tree score: " + str(dt.score(X_test, y_test)))
+
     visualize_tree(dt, features, split)
 
 def lin_regression_ord_least_squares():

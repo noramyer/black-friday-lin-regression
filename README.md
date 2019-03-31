@@ -41,7 +41,3 @@ The file exploratory.py takes a look at the raw data before it is processed. It 
 ```
 $ python src/exploratory.py
 ```
-
-## About the data
-
-## About the code
