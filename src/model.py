@@ -51,6 +51,38 @@ def label_encode(df, target_column):
 
     return df_mod
 
+def preprocess_dt(raw_df):
+    """
+        Ordinal data encoded using ordered-label encoding and categorical using one-hot.
+        Missing data is replaced with median for now, can look at estimators if need be.
+    :param raw_df:
+    :return:
+    """
+
+    df=onehot_encode(raw_df, "Gender")
+
+    del df['Occupation']
+    # df=onehot_encode(df, "Occupation")
+    del df['City_Category']
+    #df=onehot_encode(df, "City_Category")
+
+    # maintains the order of age groups while labeling
+    df=label_encode(df,"Age")
+    # should try one-hot for this one as well
+    df=label_encode(df,"Stay_In_Current_City_Years")
+
+    del df['Product_Category_1']
+    del df['Product_Category_2']
+    del df['Product_Category_3']
+
+    # df['Product_Category_1'].fillna(df['Product_Category_1'].median(), inplace=True)
+    # df['Product_Category_2'].fillna(df['Product_Category_2'].median(), inplace=True)
+    # df['Product_Category_3'].fillna(df['Product_Category_3'].median(), inplace=True)
+
+
+
+    return df
+
 
 def preprocess(raw_df, ablation=-1):
     """
@@ -109,25 +141,32 @@ def visualize_tree(tree, feature_names, step):
         exit("Could not run dot to "
              "produce visualization")
 
-def decision_tree(split):
+def decision_tree(raw_df, split):
     """
 
     :param split:
     :return:
     """
+    dt_df = preprocess_dt(raw_df)
+    # del dt_df['Product_Category_1']
+    # del dt_df['Product_Category_2']
+    # del dt_df['Product_Category_3']
+
+
     # Contains all columns except UserID, ProductID and Purchase
-    features=list(df.columns[0:-1])
+    features=list(dt_df.columns[1:-1])
     #print("-------")
     #print(features)
-    X=df[features]
-    y=df["Purchase"]
+    X=dt_df[features]
+    y=dt_df["Purchase"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.33)
 
     print("Running DT with split:", split)
     # dt = DecisionTreeClassifier(min_samples_split=split, random_state=99)
     dt = DecisionTreeRegressor(min_samples_split=split, random_state=99)
     dt.fit(X_train, y_train)
-    print("Tree score: " + str(dt.score(X_test, y_test)))
+    print("Tree score (training): " + str(dt.score(X_train, y_train)))
+    print("Tree score (test): " + str(dt.score(X_test, y_test)))
 
     visualize_tree(dt, features, split)
 
@@ -278,7 +317,7 @@ if __name__ == '__main__':
             rnd_forest_ensemble()
         else:
             if args.dt:
-                decision_tree(args.dt)
+                decision_tree(raw_df, args.dt)
             if args.los:
                 lin_regression_ord_least_squares()
             if args.ridge:
