@@ -127,7 +127,8 @@ def decision_tree(split):
     # dt = DecisionTreeClassifier(min_samples_split=split, random_state=99)
     dt = DecisionTreeRegressor(min_samples_split=split, random_state=99)
     dt.fit(X_train, y_train)
-    print("Tree score: " + str(dt.score(X_test, y_test)))
+    print("Tree score (training): " + str(dt.score(X_train, y_train)))
+    print("Tree score (test): " + str(dt.score(X_test, y_test)))
 
     visualize_tree(dt, features, split)
 
@@ -149,7 +150,7 @@ def lin_regression_ord_least_squares():
 
     #get some error rates numbers
 
-def ridge_regression(alpha):
+def ridge_regression(alpha_v):
     """
 
     :param split:
@@ -157,7 +158,7 @@ def ridge_regression(alpha):
     """
 
     x_train, x_test, y_train, y_test = split_data()
-    reg = Ridge(alpha).fit(x_train, y_train)
+    reg = Ridge(alpha=alpha_v).fit(x_train, y_train)
     print("Ridge score training: ", reg.score(x_train, y_train))
     print("Ridge score test: ", reg.score(x_test, y_test))
     print("Ridge coefficients: ", reg.coef_)
@@ -167,7 +168,7 @@ def ridge_regression(alpha):
 
     #get some error rates numbers
 
-def lasso_regression(alpha):
+def lasso_regression(alpha_v):
     """
 
     :param split:
@@ -175,7 +176,7 @@ def lasso_regression(alpha):
     """
 
     x_train, x_test, y_train, y_test = split_data()
-    reg = Lasso(alpha).fit(x_train, y_train)
+    reg = Lasso(alpha=alpha_v).fit(x_train, y_train)
     print("Lasso score training: ", reg.score(x_train, y_train))
     print("Lasso score test: ", reg.score(x_test, y_test))
     print("Lasso coefficients: ", reg.coef_)
