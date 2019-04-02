@@ -10,6 +10,7 @@ from sklearn.tree import DecisionTreeClassifier, export_graphviz, DecisionTreeRe
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.kernel_ridge import KernelRidge
 from matplotlib.pyplot import *
 
 pd.set_option('display.max_columns', None)
@@ -184,6 +185,21 @@ def lasso_regression(alpha_v):
     predictions = reg.predict(x_test)
     plot_assignments(predictions, y_test)
 
+def kernel_ridge(alpha_v):
+    """
+
+    :param split:
+    :return:
+    """
+
+    x_train, x_test, y_train, y_test = split_data()
+    kern = KernelRidge(alpha=alpha_v).fit(x_train, y_train)
+    print("Kernel score training: ", kern.score(x_train, y_train))
+    print("Kernel score test: ", kern.score(x_test, y_test))
+
+    predictions = kern.predict(x_test)
+    plot_assignments(predictions, y_test)
+
 def plot_assignments(predicted_purchase, actual_purchase):
     plot(predicted_purchase, actual_purchase, 'b.')
 
@@ -256,6 +272,8 @@ if __name__ == '__main__':
                         help='A random forest regressor which fits a number of classifying decision trees on various sub-samples of the dataset and uses averaging to improve the predictive accuracy and control over-fitting')
     parser.add_argument("--all", action="store_true",
                         help='Run all models')
+    parser.add_argument("--kernel", type=float,
+                        help='Kernel ridge model is a non-linear model and takes in one param, alpha. A good example value is .1')
     parser.add_argument("--ablation", action="store_true",
                         help='Enables ablation testing')
 
@@ -287,4 +305,6 @@ if __name__ == '__main__':
             if args.lasso:
                 lasso_regression(args.lasso)
             if args.forest:
+                rnd_forest_ensemble()
+            if args.kernel:
                 rnd_forest_ensemble()
