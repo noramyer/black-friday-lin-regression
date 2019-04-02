@@ -133,13 +133,13 @@ def visualize_tree(tree, feature_names, step):
         export_graphviz(tree, out_file=f,
                         feature_names=feature_names)
 
-    command1 = ["dot", "-Tpng", dot_name, "-o",  png_name]
+    # command1 = ["dot", "-Tpng", dot_name, "-o",  png_name]
     command = ["dot", "-Tpdf", dot_name, "-o",  pdf_name]
     try:
         subprocess.check_call(command)
-        subprocess.check_call(command1)
+        # subprocess.check_call(command1)
     except:
-        exit("Could not run dot to "
+        print("Could not run dot to "
              "produce visualization")
 
 def decision_tree(raw_df, split):
@@ -328,7 +328,7 @@ if __name__ == '__main__':
         df=preprocess(raw_df,i)
 
         if args.all:
-            decision_tree(2500)
+            decision_tree(raw_df, 2500)
             lin_regression_ord_least_squares()
             ridge_regression(.1)
             lasso_regression(.1)
