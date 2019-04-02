@@ -185,7 +185,7 @@ def lasso_regression(alpha_v):
     predictions = reg.predict(x_test)
     plot_assignments(predictions, y_test)
 
-def kernel_ridge(alpha_v):
+def kernel_ridge(g):
     """
 
     :param split:
@@ -193,7 +193,7 @@ def kernel_ridge(alpha_v):
     """
 
     x_train, x_test, y_train, y_test = split_data()
-    kern = KernelRidge(alpha=alpha_v).fit(x_train, y_train)
+    kern = KernelRidge(kernel='rbf', gamma=g).fit(x_train, y_train)
     print("Kernel score training: ", kern.score(x_train, y_train))
     print("Kernel score test: ", kern.score(x_test, y_test))
 
@@ -273,7 +273,7 @@ if __name__ == '__main__':
     parser.add_argument("--all", action="store_true",
                         help='Run all models')
     parser.add_argument("--kernel", type=float,
-                        help='Kernel ridge model is a non-linear model and takes in one param, alpha. A good example value is .1')
+                        help='Kernel ridge model is a non-linear model and takes in one param, gamma. A good example value is .5')
     parser.add_argument("--ablation", action="store_true",
                         help='Enables ablation testing')
 
@@ -307,4 +307,4 @@ if __name__ == '__main__':
             if args.forest:
                 rnd_forest_ensemble()
             if args.kernel:
-                rnd_forest_ensemble()
+                kernel_ridge(args.kernel)
