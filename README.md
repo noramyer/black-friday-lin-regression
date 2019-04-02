@@ -31,6 +31,7 @@ Param selection options:
 --los         #linear model with least ordinary squares, no args
 --ridge .1    #ridge regression, takes 1 arg which is alpha
 --lasso .1    #lasso linear model, takes 1 arg which is alpha
+--kernel .5    #kernel model, takes 1 arg which is alpha
 --forest      #rnd forest regressor, no args
 --all         #run all models with basic args
 --ablation    #run ablation test specified models

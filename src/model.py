@@ -10,6 +10,7 @@ from sklearn.tree import DecisionTreeClassifier, export_graphviz, DecisionTreeRe
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.kernel_ridge import KernelRidge
 from matplotlib.pyplot import *
 
 pd.set_option('display.max_columns', None)
@@ -188,7 +189,7 @@ def lin_regression_ord_least_squares():
 
     #get some error rates numbers
 
-def ridge_regression(alpha):
+def ridge_regression(alpha_v):
     """
 
     :param split:
@@ -196,7 +197,7 @@ def ridge_regression(alpha):
     """
 
     x_train, x_test, y_train, y_test = split_data()
-    reg = Ridge(alpha).fit(x_train, y_train)
+    reg = Ridge(alpha=alpha_v).fit(x_train, y_train)
     print("Ridge score training: ", reg.score(x_train, y_train))
     print("Ridge score test: ", reg.score(x_test, y_test))
     print("Ridge coefficients: ", reg.coef_)
@@ -206,7 +207,7 @@ def ridge_regression(alpha):
 
     #get some error rates numbers
 
-def lasso_regression(alpha):
+def lasso_regression(alpha_v):
     """
 
     :param split:
@@ -214,12 +215,27 @@ def lasso_regression(alpha):
     """
 
     x_train, x_test, y_train, y_test = split_data()
-    reg = Lasso(alpha).fit(x_train, y_train)
+    reg = Lasso(alpha=alpha_v).fit(x_train, y_train)
     print("Lasso score training: ", reg.score(x_train, y_train))
     print("Lasso score test: ", reg.score(x_test, y_test))
     print("Lasso coefficients: ", reg.coef_)
 
     predictions = reg.predict(x_test)
+    plot_assignments(predictions, y_test)
+
+def kernel_ridge(g):
+    """
+
+    :param split:
+    :return:
+    """
+
+    x_train, x_test, y_train, y_test = split_data()
+    kern = KernelRidge(kernel='rbf', gamma=g).fit(x_train, y_train)
+    print("Kernel score training: ", kern.score(x_train, y_train))
+    print("Kernel score test: ", kern.score(x_test, y_test))
+
+    predictions = kern.predict(x_test)
     plot_assignments(predictions, y_test)
 
 def plot_assignments(predicted_purchase, actual_purchase):
@@ -294,6 +310,8 @@ if __name__ == '__main__':
                         help='A random forest regressor which fits a number of classifying decision trees on various sub-samples of the dataset and uses averaging to improve the predictive accuracy and control over-fitting')
     parser.add_argument("--all", action="store_true",
                         help='Run all models')
+    parser.add_argument("--kernel", type=float,
+                        help='Kernel ridge model is a non-linear model and takes in one param, gamma. A good example value is .5')
     parser.add_argument("--ablation", action="store_true",
                         help='Enables ablation testing')
 
@@ -326,3 +344,5 @@ if __name__ == '__main__':
                 lasso_regression(args.lasso)
             if args.forest:
                 rnd_forest_ensemble()
+            if args.kernel:
+                kernel_ridge(args.kernel)
