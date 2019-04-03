@@ -1,5 +1,5 @@
 # A look at Black Friday purchases using linear regression
-### By Nora Myer, Matthew Frey, Haseeb Javed, Aidan Globus
+### By Nora Myer, Haseeb Javed, Aidan Globus
 
 ## Quick Start
 The following dependencies are required:
